@@ -4,205 +4,235 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Slither X</title>
-
-<!-- X Player Card -->
 <meta name="twitter:card" content="player">
 <meta name="twitter:title" content="Slither X">
-<meta name="twitter:description" content="Play Slither X directly from the post.">
-<meta name="twitter:image" content="https://YOUR-DOMAIN.vercel.app/preview.png">
-<meta name="twitter:player" content="https://YOUR-DOMAIN.vercel.app/">
+<meta name="twitter:description" content="Play Slither X">
+<meta name="twitter:player" content="https://slihgterx.vercel.app/">
 <meta name="twitter:player:width" content="720">
 <meta name="twitter:player:height" content="405">
-
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07110d;font-family:Inter,system-ui,sans-serif;color:#fff}
+*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#06100b;font-family:Inter,system-ui,Arial;color:#fff}
 #game{position:fixed;inset:0}canvas{display:block;width:100%;height:100%;touch-action:none}
-#hud{position:fixed;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;z-index:5}
-.panel{background:rgba(4,12,9,.72);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(10px);border-radius:14px;padding:10px 13px}
-#score{font-size:18px;font-weight:800}#sub{font-size:11px;opacity:.6;margin-top:2px}
-button{pointer-events:auto;border:0;border-radius:10px;padding:10px 13px;background:#fff;color:#111;font-weight:800;cursor:pointer}
-#center{position:fixed;inset:0;display:grid;place-items:center;z-index:10;background:rgba(0,0,0,.35)}
-.card{width:min(360px,calc(100% - 30px));text-align:center;background:rgba(7,17,13,.94);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:25px}
-.card h1{margin:0 0 8px;font-size:32px}.card p{opacity:.7;margin:0 0 18px}
-#boost{position:fixed;right:22px;bottom:22px;width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.2);color:#fff;z-index:6;pointer-events:auto}
+#hud{position:fixed;inset:14px 14px auto;display:flex;justify-content:space-between;align-items:flex-start;z-index:5;pointer-events:none}
+.panel{background:rgba(4,12,8,.72);border:1px solid rgba(255,255,255,.13);backdrop-filter:blur(12px);border-radius:14px;padding:10px 14px}
+#score{font-weight:850;font-size:18px}#sub{font-size:11px;opacity:.65;margin-top:3px}
+#boost{pointer-events:auto;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.12);color:white;border-radius:50%;width:76px;height:76px;font-weight:900;position:fixed;right:22px;bottom:22px;z-index:7}
+#menu{position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(circle at center,rgba(20,70,40,.35),rgba(0,0,0,.72));z-index:20}
+.card{width:min(390px,calc(100% - 28px));background:rgba(7,16,11,.96);border:1px solid rgba(255,255,255,.13);border-radius:22px;padding:26px;box-shadow:0 20px 70px #0008}
+h1{font-size:38px;line-height:1;margin:0 0 7px;letter-spacing:-1.5px}p{opacity:.65;margin:0 0 20px}
+label{display:block;font-size:12px;font-weight:700;opacity:.75;margin:13px 0 7px}
+input[type=text]{width:100%;height:46px;border-radius:11px;border:1px solid #ffffff20;background:#ffffff0c;color:white;padding:0 13px;font-size:16px;outline:none}
+input[type=color]{width:100%;height:46px;border:0;padding:3px;background:#ffffff0c;border-radius:11px;cursor:pointer}
+button.play{width:100%;height:48px;border:0;border-radius:12px;background:#fff;color:#111;font-weight:900;font-size:16px;margin-top:18px;cursor:pointer}
+#hint{font-size:11px;text-align:center;opacity:.45;margin-top:12px}
 .hidden{display:none!important}
 </style>
 </head>
 <body>
 <div id="game"></div>
-<div id="hud">
-  <div class="panel"><div id="score">Score 0</div><div id="sub">Length 10 · WASD / mouse</div></div>
-  <button id="restart">Restart</button>
+<div id="hud" class="hidden">
+ <div class="panel"><div id="score">Score 0</div><div id="sub">Length 12 · Move with mouse</div></div>
 </div>
-<button id="boost">BOOST</button>
-
-<div id="center">
-  <div class="card">
-    <h1>SLITHER X</h1>
-    <p>Eat pellets. Grow. Outplay the bots.</p>
-    <button id="play">PLAY</button>
-  </div>
+<button id="boost" class="hidden">BOOST</button>
+<div id="menu">
+ <div class="card">
+  <h1>SLITHER X</h1>
+  <p>Choose your snake and enter the arena.</p>
+  <label for="name">YOUR NAME</label>
+  <input id="name" type="text" maxlength="16" placeholder="Enter name" value="Player">
+  <label for="color">SNAKE COLOR</label>
+  <input id="color" type="color" value="#8b5cf6">
+  <button class="play" id="play">PLAY</button>
+  <div id="hint">Mouse / finger = steering · Hold BOOST to move faster</div>
+ </div>
 </div>
 
 <script type="module">
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js";
 
 const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x07110d);
-scene.fog=new THREE.Fog(0x07110d,55,115);
+scene.background=new THREE.Color(0x06100b);
+scene.fog=new THREE.Fog(0x06100b,55,125);
 
-const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,250);
-camera.position.set(0,38,28);
-camera.lookAt(0,0,0);
-
-const renderer=new THREE.WebGLRenderer({antialias:true});
+const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,240);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:"high-performance"});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.setSize(innerWidth,innerHeight);
-renderer.shadowMap.enabled=true;
-document.getElementById("game").appendChild(renderer.domElement);
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+document.querySelector("#game").appendChild(renderer.domElement);
 
-scene.add(new THREE.HemisphereLight(0xaaffcc,0x102018,2.1));
-const sun=new THREE.DirectionalLight(0xffffff,2.4);
-sun.position.set(20,45,15);sun.castShadow=true;scene.add(sun);
+scene.add(new THREE.HemisphereLight(0xcaffdf,0x07160e,2.3));
+const sun=new THREE.DirectionalLight(0xffffff,2.5);sun.position.set(25,45,20);scene.add(sun);
 
-const arena=70;
-const floor=new THREE.Mesh(
- new THREE.PlaneGeometry(arena*2,arena*2),
- new THREE.MeshStandardMaterial({color:0x0b2116,roughness:1})
-);
-floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
-
-const grid=new THREE.GridHelper(arena*2,28,0x16452a,0x10321f);
-grid.position.y=.02;scene.add(grid);
+const ARENA=70;
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(ARENA*2,ARENA*2),new THREE.MeshStandardMaterial({color:0x0a2115,roughness:1}));
+floor.rotation.x=-Math.PI/2;scene.add(floor);
+const grid=new THREE.GridHelper(ARENA*2,35,0x1d5936,0x10331f);grid.position.y=.02;scene.add(grid);
 
 const foodGroup=new THREE.Group();scene.add(foodGroup);
-const foodGeo=new THREE.SphereGeometry(.35,10,8);
-const foodColors=[0xffc857,0xff5d8f,0x62e6ff,0x9dff6a,0xc08cff];
+const foodGeo=new THREE.SphereGeometry(.34,10,8);
+const palette=[0xffc857,0x38d996,0x48b9ff,0xff6fae,0xb184ff,0xff7b45];
 const foods=[];
-function rnd(a,b){return Math.random()*(b-a)+a}
-function makeFood(){
- const m=new THREE.MeshStandardMaterial({color:foodColors[(Math.random()*foodColors.length)|0],emissive:0x331111,emissiveIntensity:1.2});
- const o=new THREE.Mesh(foodGeo,m);o.position.set(rnd(-arena+3,arena-3),.45,rnd(-arena+3,arena-3));o.userData.phase=Math.random()*7;foodGroup.add(o);foods.push(o);
+const rnd=(a,b)=>Math.random()*(b-a)+a;
+function spawnFood(){
+ const col=palette[(Math.random()*palette.length)|0];
+ const mat=new THREE.MeshStandardMaterial({color:col,emissive:col,emissiveIntensity:.25});
+ const f=new THREE.Mesh(foodGeo,mat);
+ f.position.set(rnd(-ARENA+2,ARENA-2),.48,rnd(-ARENA+2,ARENA-2));
+ f.userData.phase=Math.random()*Math.PI*2;
+ foodGroup.add(f);foods.push(f);
 }
-for(let i=0;i<180;i++)makeFood();
+for(let i=0;i<220;i++)spawnFood();
 
-const snakeGeo=new THREE.SphereGeometry(1,14,10);
-const eyeGeo=new THREE.SphereGeometry(.18,8,8);
+const snakeGeo=new THREE.SphereGeometry(1,18,14);
 const snakes=[];
-function createSnake(color,isPlayer=false){
- const s={body:[],angle:rnd(0,Math.PI*2),speed:isPlayer?11:8.5,boost:false,isPlayer,color};
- const mat=new THREE.MeshStandardMaterial({color,roughness:.7});
- for(let i=0;i<(isPlayer?10:14);i++){
-   const seg=new THREE.Mesh(snakeGeo,mat);seg.scale.setScalar(i? .72:.9);seg.castShadow=true;
-   seg.position.set(rnd(-25,25),.8,rnd(-25,25));scene.add(seg);s.body.push(seg);
+function makeSnake(name,color,isPlayer=false){
+ const s={name,color,isPlayer,body:[],angle:rnd(-Math.PI,Math.PI),speed:isPlayer?10.5:7.8,targetAngle:0,boost:false,desiredBoost:false,score:0,turnRate:isPlayer?7:2.2};
+ const mat=new THREE.MeshStandardMaterial({color,roughness:.58,metalness:.05});
+ for(let i=0;i<(isPlayer?12:18);i++){
+   const m=new THREE.Mesh(snakeGeo,mat);
+   m.scale.setScalar(i?0.68:0.9);
+   m.position.set(0,.78,-i*1.02);
+   m.castShadow=true;scene.add(m);s.body.push(m);
  }
  snakes.push(s);return s;
 }
-const player=createSnake(0x8b5cf6,true);
-const bots=[
- createSnake(0x22c55e),createSnake(0xef4444),createSnake(0x38bdf8),
- createSnake(0xf97316),createSnake(0xe879f9),createSnake(0xfacc15)
+const player=makeSnake("Player",0x8b5cf6,true);
+const botData=[
+ ["Nova",0x22c55e],["Viper",0xef4444],["Orbit",0x38bdf8],["Blaze",0xf97316],
+ ["Mochi",0xec4899],["Ghost",0xe5e7eb],["Rex",0xfacc15],["Zed",0xa78bfa]
 ];
-bots.forEach((b,i)=>b.body.forEach((x,j)=>x.position.set(rnd(-55,55),.8,rnd(-55,55))));
+const bots=botData.map(([n,c])=>makeSnake(n,c));
 
-const mouse=new THREE.Vector2();
-let playing=false,score=0,dead=false,boost=false;
-const keys={};
-addEventListener("keydown",e=>{keys[e.key.toLowerCase()]=true;if(e.key===" ")boost=true});
-addEventListener("keyup",e=>{keys[e.key.toLowerCase()]=false;if(e.key===" ")boost=false});
+const pointer={x:.0,y:1};
+let started=false,dead=false,totalScore=0,last=performance.now();
+let camTarget=new THREE.Vector3();
+function resetSnake(s,x,z){
+ s.angle=rnd(-Math.PI,Math.PI);s.score=0;s.boost=false;
+ for(let i=0;i<s.body.length;i++){s.body[i].position.set(x-Math.sin(s.angle)*i*1.02,.78,z-Math.cos(s.angle)*i*1.02)}
+}
+function startGame(){
+ const name=(document.querySelector("#name").value.trim()||"Player").slice(0,16);
+ player.name=name;player.color=document.querySelector("#color").value;
+ player.body.forEach(m=>m.material.color.set(player.color));
+ resetSnake(player,0,0);
+ bots.forEach(b=>resetSnake(b,rnd(-55,55),rnd(-55,55)));
+ totalScore=0;dead=false;started=true;
+ document.querySelector("#menu").classList.add("hidden");
+ document.querySelector("#hud").classList.remove("hidden");
+ document.querySelector("#boost").classList.remove("hidden");
+}
+document.querySelector("#play").addEventListener("click",startGame);
+
 renderer.domElement.addEventListener("pointermove",e=>{
  const r=renderer.domElement.getBoundingClientRect();
- mouse.x=(e.clientX-r.left)/r.width*2-1;mouse.y=-(e.clientY-r.top)/r.height*2+1;
+ pointer.x=((e.clientX-r.left)/r.width)*2-1;
+ pointer.y=1-((e.clientY-r.top)/r.height)*2;
 });
-const boostBtn=document.getElementById("boost");
-boostBtn.addEventListener("pointerdown",()=>boost=true);
-boostBtn.addEventListener("pointerup",()=>boost=false);
-boostBtn.addEventListener("pointercancel",()=>boost=false);
+renderer.domElement.addEventListener("pointerdown",e=>{if(e.pointerType==="touch"){pointer.x=((e.clientX/innerWidth)*2-1);pointer.y=1-(e.clientY/innerHeight)*2}});
 
-function steerPlayer(dt){
- let desired=Math.atan2(mouse.x,mouse.y);
- if(keys.w||keys.arrowup)desired=0;
- if(keys.s||keys.arrowdown)desired=Math.PI;
- if(keys.a||keys.arrowleft)desired=-Math.PI/2;
- if(keys.d||keys.arrowright)desired=Math.PI/2;
- let d=((desired-player.angle+Math.PI*3)%(Math.PI*2))-Math.PI;
- player.angle+=Math.max(-3.2*dt,Math.min(3.2*dt,d));
+const keys={};
+addEventListener("keydown",e=>{keys[e.key.toLowerCase()]=true;if(e.key===" ")player.desiredBoost=true});
+addEventListener("keyup",e=>{keys[e.key.toLowerCase()]=false;if(e.key===" ")player.desiredBoost=false});
+const boostBtn=document.querySelector("#boost");
+boostBtn.addEventListener("pointerdown",()=>player.desiredBoost=true);
+["pointerup","pointercancel","pointerleave"].forEach(e=>boostBtn.addEventListener(e,()=>player.desiredBoost=false));
+
+function angleDiff(a,b){return ((a-b+Math.PI*3)%(Math.PI*2))-Math.PI}
+function playerSteer(){
+ let target=Math.atan2(pointer.x,pointer.y);
+ if(keys.w||keys.arrowup)target=0;
+ if(keys.s||keys.arrowdown)target=Math.PI;
+ if(keys.a||keys.arrowleft)target=-Math.PI/2;
+ if(keys.d||keys.arrowright)target=Math.PI/2;
+ const d=angleDiff(target,player.angle);
+ player.angle+=THREE.MathUtils.clamp(d,-player.turnRate/60,player.turnRate/60);
+ player.desiredBoost=player.desiredBoost||keys["shift"];
+}
+function botSteer(b){
+ const h=b.body[0],px=h.position.x,pz=h.position.z;
+ let best=null,bestD=Infinity;
+ for(const f of foods){
+   const dx=f.position.x-px,dz=f.position.z-pz,d=dx*dx+dz*dz;
+   if(d<bestD){bestD=d;best=f}
+ }
+ if(best)b.targetAngle=Math.atan2(best.position.x-px,best.position.z-pz);
+ if(Math.abs(px)>ARENA-10)b.targetAngle=Math.atan2(-px,-pz);
+ if(Math.abs(pz)>ARENA-10)b.targetAngle=Math.atan2(-px,-pz);
+ const d=angleDiff(b.targetAngle,b.angle);
+ b.angle+=THREE.MathUtils.clamp(d,-b.turnRate/60,b.turnRate/60);
 }
 function moveSnake(s,dt){
- const head=s.body[0], sp=s.speed*(s.boost?1.55:1);
- head.position.x+=Math.sin(s.angle)*sp*dt;
- head.position.z+=Math.cos(s.angle)*sp*dt;
- head.position.x=Math.max(-arena+1,Math.min(arena-1,head.position.x));
- head.position.z=Math.max(-arena+1,Math.min(arena-1,head.position.z));
+ const h=s.body[0],speed=s.speed*(s.desiredBoost?1.42:1);
+ h.position.x+=Math.sin(s.angle)*speed*dt;
+ h.position.z+=Math.cos(s.angle)*speed*dt;
+ h.position.x=THREE.MathUtils.clamp(h.position.x,-ARENA+1,ARENA-1);
+ h.position.z=THREE.MathUtils.clamp(h.position.z,-ARENA+1,ARENA-1);
+ // smooth spring following instead of teleporting segments
  for(let i=1;i<s.body.length;i++){
-   const prev=s.body[i-1],cur=s.body[i],dx=prev.position.x-cur.position.x,dz=prev.position.z-cur.position.z;
-   const d=Math.hypot(dx,dz),target=1.05;
-   if(d>target){cur.position.x+=dx/d*(d-target)*.55;cur.position.z+=dz/d*(d-target)*.55}
-   cur.position.y=.8+Math.sin(performance.now()*.006+i)*.06;
+   const p=s.body[i-1],q=s.body[i];
+   const dx=p.position.x-q.position.x,dz=p.position.z-q.position.z;
+   const d=Math.hypot(dx,dz)||.001;
+   const gap=1.03;
+   const correction=Math.min(1,d-gap)*Math.min(1,dt*16);
+   q.position.x+=dx/d*correction;
+   q.position.z+=dz/d*correction;
+   q.position.y=.78+Math.sin(performance.now()*.004+i*.65)*.045;
  }
 }
-function botThink(b,dt){
- const h=b.body[0];
- let target=null,best=999;
- for(const f of foods){const d=(f.position.x-h.position.x)**2+(f.position.z-h.position.z)**2;if(d<best){best=d;target=f}}
- if(target){
-   const a=Math.atan2(target.position.x-h.position.x,target.position.z-h.position.z);
-   let d=((a-b.angle+Math.PI*3)%(Math.PI*2))-Math.PI;
-   b.angle+=Math.max(-1.5*dt,Math.min(1.5*dt,d));
- }
- if(Math.random()<.002)b.angle+=rnd(-1,1);
+function grow(){
+ const tail=player.body[player.body.length-1],m=new THREE.Mesh(snakeGeo,player.body[0].material);
+ m.scale.setScalar(.68);m.position.copy(tail.position);scene.add(m);player.body.push(m);
 }
-function eat(){
+function eatFood(){
  const h=player.body[0];
  for(let i=foods.length-1;i>=0;i--){
    const f=foods[i],d=Math.hypot(h.position.x-f.position.x,h.position.z-f.position.z);
    if(d<1.35){
-     foodGroup.remove(f);foods.splice(i,1);score++;
-     const tail=player.body[player.body.length-1];
-     const seg=new THREE.Mesh(snakeGeo,player.body[0].material);seg.scale.setScalar(.72);seg.position.copy(tail.position);scene.add(seg);player.body.push(seg);
-     makeFood();
+     foodGroup.remove(f);foods.splice(i,1);spawnFood();totalScore++;grow();
+     if(totalScore%5===0)player.desiredBoost=false;
    }
  }
 }
 function collisions(){
  const h=player.body[0];
- if(Math.abs(h.position.x)>=arena-1||Math.abs(h.position.z)>=arena-1){gameOver();return}
+ if(Math.abs(h.position.x)>ARENA-.8||Math.abs(h.position.z)>ARENA-.8){endGame();return}
  for(const b of bots){
    for(let i=3;i<b.body.length;i++){
-     const p=b.body[i],d=Math.hypot(h.position.x-p.position.x,h.position.z-p.position.z);
-     if(d<1.05){gameOver();return}
+     const q=b.body[i],d=Math.hypot(h.position.x-q.position.x,h.position.z-q.position.z);
+     if(d<1.05){endGame();return}
    }
  }
 }
-function gameOver(){dead=true;playing=false;document.querySelector("#center").classList.remove("hidden");document.querySelector("#center h1").textContent="GAME OVER";document.querySelector("#center p").textContent=`Score ${score} · Length ${player.body.length}`;document.querySelector("#play").textContent="PLAY AGAIN"}
-function reset(){
- score=0;dead=false;playing=true;boost=false;
- player.angle=0;player.body.forEach((s,i)=>s.position.set(0,.8,-i*1.05));
- for(const b of bots)b.body.forEach((s,i)=>s.position.set(rnd(-55,55),.8,rnd(-55,55)));
- document.querySelector("#center").classList.add("hidden");
+function endGame(){
+ if(dead)return;dead=true;started=false;
+ document.querySelector("#menu").classList.remove("hidden");
+ document.querySelector("#menu h1").textContent="GAME OVER";
+ document.querySelector("#menu p").textContent=`${player.name} scored ${totalScore}.`;
+ document.querySelector("#play").textContent="PLAY AGAIN";
 }
-document.querySelector("#play").onclick=reset;
-document.querySelector("#restart").onclick=reset;
-
-function animate(){
- requestAnimationFrame(animate);
- const dt=Math.min(clock.getDelta(),.033);
- if(playing){
-   player.boost=boost;steerPlayer(dt);moveSnake(player,dt);
-   bots.forEach(b=>{botThink(b,dt);moveSnake(b,dt)});
-   eat();collisions();
-   document.getElementById("score").textContent=`Score ${score}`;
-   document.getElementById("sub").textContent=`Length ${player.body.length} · WASD / mouse`;
+function updateHUD(){
+ document.querySelector("#score").textContent=`${player.name} · ${totalScore}`;
+ document.querySelector("#sub").textContent=`Length ${player.body.length} · Mouse / WASD`;
+}
+function loop(now){
+ requestAnimationFrame(loop);
+ const dt=Math.min((now-last)/1000,.033);last=now;
+ if(started){
+   playerSteer();
+   bots.forEach(botSteer);
+   moveSnake(player,dt);bots.forEach(b=>moveSnake(b,dt));
+   eatFood();collisions();updateHUD();
+   const h=player.body[0];
+   camTarget.lerp(new THREE.Vector3(h.position.x,0,h.position.z),.18);
+   const desired=new THREE.Vector3(h.position.x,36,h.position.z+27);
+   camera.position.lerp(desired,.10);
+   camera.lookAt(camTarget);
  }
- const h=player.body[0];
- const target=new THREE.Vector3(h.position.x,0,h.position.z);
- camera.position.lerp(new THREE.Vector3(h.position.x,38,h.position.z+28),.055);
- camera.lookAt(target);
- for(const f of foods)f.rotation.y+=dt*2;
+ foods.forEach((f,i)=>{f.position.y=.48+Math.sin(now*.003+f.userData.phase)*.08;f.rotation.y+=dt});
  renderer.render(scene,camera);
 }
-const clock=new THREE.Clock();
-reset();playing=false;document.querySelector("#center").classList.remove("hidden");animate();
+resetSnake(player,0,0);camera.position.set(0,36,27);camera.lookAt(0,0,0);requestAnimationFrame(loop);
 addEventListener("resize",()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 </script>
 </body>
